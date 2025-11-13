@@ -1,0 +1,62 @@
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-lock.yaml
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# OS / editors
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.log
+
+# build outputs
+dist/
+build/
+out/
+*.tgz
+
+# frontend specific (Vite / React)
+.vite/
+.cache/
+public/dist/
+
+# backend uploads / runtime files
+uploads/
+uploads/*
+
+# misc
+coverage/
+.cache/
+*.csv
+*.sqlite
+*.db
+
+# lock files (OPTIONAL: it's usually good to commit package-lock.json. Uncomment if you DO NOT want them)
+# package-lock.json
+# yarn.lock
+
+# system files
+/.env.local
+/.env.development.local
+/.env.test.local
+/.env.production.local
+
+# macOS
+.AppleDouble
+.LSOverride
+
+# npm debug
+npm-debug.log*
+
+# JetBrains
+/.idea/
