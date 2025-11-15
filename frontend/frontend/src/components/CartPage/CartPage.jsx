@@ -1,15 +1,15 @@
-import React, { useState } from 'react';
-import { useCart } from '../../CartContext/CartContext';
-import { Link, useNavigate } from 'react-router-dom';
-import { FaMinus, FaPlus, FaTrash, FaTimes } from 'react-icons/fa';
+import React, { useState } from "react";
+import { useCart } from "../../CartContext/CartContext";
+import { Link, useNavigate } from "react-router-dom";
+import { FaMinus, FaPlus, FaTrash, FaTimes } from "react-icons/fa";
 
 const CartPage = () => {
-  const { cartItems, removeFromCart, updateQuantity, totalAmount } = useCart();
+  const { cartItems, removeFromCart, updateQuantity, totalAmount, loading } = useCart();
   const [selectedImage, setSelectedImage] = useState(null);
   const navigate = useNavigate();
 
   const handleCheckout = () => {
-    navigate('/checkout');
+    navigate("/checkout");
   };
 
   return (
@@ -21,7 +21,9 @@ const CartPage = () => {
           </span>
         </h1>
 
-        {cartItems.length === 0 ? (
+        {loading ? (
+          <div className="text-center text-amber-100">Loading cart...</div>
+        ) : cartItems.length === 0 ? (
           <div className="text-center animate-fade-in">
             <p className="text-amber-100/80 text-xl mb-4">Your cart is empty</p>
             <Link
@@ -34,63 +36,66 @@ const CartPage = () => {
         ) : (
           <>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-              {cartItems.map((item) => (
-                <div
-                  key={item._id}
-                  className="group bg-amber-900/20 p-4 rounded-2xl border-4 border-dashed border-amber-500/30 backdrop-blur-sm flex flex-col items-center gap-4 transition-all duration-300 hover:border-solid hover:shadow-xl hover:shadow-amber-900/10 transform hover:-translate-y-1 animate-fade-in"
-                >
+              {cartItems.map((ci) => {
+                const item = ci.item;
+                return (
                   <div
-                    className="w-24 h-24 flex-shrink-0 cursor-pointer relative overflow-hidden rounded-lg transition-transform duration-300"
-                    onClick={() => setSelectedImage(item.image)}
+                    key={item.id}
+                    className="group bg-amber-900/20 p-4 rounded-2xl border-4 border-dashed border-amber-500/30 backdrop-blur-sm flex flex-col items-center gap-4 transition-all duration-300 hover:border-solid hover:shadow-xl hover:shadow-amber-900/10 transform hover:-translate-y-1 animate-fade-in"
                   >
-                    <img
-                      src={item.image}
-                      alt={item.name}
-                      className="w-full h-full object-contain"
-                    />
-                  </div>
-
-                  <div className="w-full text-center">
-                    <h3 className="text-xl font-dancingscript text-amber-100">
-                      {item.name}
-                    </h3>
-                    <p className="text-amber-100/80 font-cinzel mt-1">₹{item.price}</p>
-                  </div>
-
-                  <div className="flex items-center gap-3">
-                    <button
-                      onClick={() =>
-                        updateQuantity(item, Math.max(1, item.quantity - 1))
-                      }
-                      className="w-8 h-8 rounded-full bg-amber-900/40 flex items-center justify-center hover:bg-amber-800/50 transition-all duration-200 active:scale-95"
+                    <div
+                      className="w-24 h-24 flex-shrink-0 cursor-pointer relative overflow-hidden rounded-lg transition-transform duration-300"
+                      onClick={() => setSelectedImage(item.image)}
                     >
-                      <FaMinus className="w-4 h-4 text-center text-amber-100 font-cinzel" />
-                    </button>
-                    <span className="w-8 text-center text-amber-100 font-cinzel">
-                      {item.quantity}
-                    </span>
-                    <button
-                      onClick={() => updateQuantity(item, item.quantity + 1)}
-                      className="w-8 h-8 rounded-full bg-amber-900/40 flex items-center justify-center hover:bg-amber-800/50 transition-all duration-200 active:scale-95"
-                    >
-                      <FaPlus className="w-4 h-4 text-center text-amber-100 font-cinzel" />
-                    </button>
-                  </div>
+                      <img
+                        src={item.image}
+                        alt={item.name}
+                        className="w-full h-full object-contain"
+                      />
+                    </div>
 
-                  <div className="flex items-center justify-between w-full">
-                    <button
-                      onClick={() => removeFromCart(item._id)}
-                      className="bg-amber-900/40 px-3 py-1 rounded-full font-cinzel text-xs uppercase transition-all duration-300 hover:bg-amber-800/50 flex items-center gap-1 active:scale-95"
-                    >
-                      <FaTrash className="w-4 h-4 text-amber-100" />
-                      <span className="text-amber-100">Remove</span>
-                    </button>
-                    <p className="text-sm font-dancingscript text-amber-300">
-                      ₹{item.price * item.quantity}
-                    </p>
+                    <div className="w-full text-center">
+                      <h3 className="text-xl font-dancingscript text-amber-100">
+                        {item.name}
+                      </h3>
+                      <p className="text-amber-100/80 font-cinzel mt-1">₹{item.price}</p>
+                    </div>
+
+                    <div className="flex items-center gap-3">
+                      <button
+                        onClick={() =>
+                          updateQuantity(item, Math.max(0, ci.quantity - 1))
+                        }
+                        className="w-8 h-8 rounded-full bg-amber-900/40 flex items-center justify-center hover:bg-amber-800/50 transition-all duration-200 active:scale-95"
+                      >
+                        <FaMinus className="w-4 h-4 text-center text-amber-100 font-cinzel" />
+                      </button>
+                      <span className="w-8 text-center text-amber-100 font-cinzel">
+                        {ci.quantity}
+                      </span>
+                      <button
+                        onClick={() => updateQuantity(item, ci.quantity + 1)}
+                        className="w-8 h-8 rounded-full bg-amber-900/40 flex items-center justify-center hover:bg-amber-800/50 transition-all duration-200 active:scale-95"
+                      >
+                        <FaPlus className="w-4 h-4 text-center text-amber-100 font-cinzel" />
+                      </button>
+                    </div>
+
+                    <div className="flex items-center justify-between w-full">
+                      <button
+                        onClick={() => removeFromCart(item.id)}
+                        className="bg-amber-900/40 px-3 py-1 rounded-full font-cinzel text-xs uppercase transition-all duration-300 hover:bg-amber-800/50 flex items-center gap-1 active:scale-95"
+                      >
+                        <FaTrash className="w-4 h-4 text-amber-100" />
+                        <span className="text-amber-100">Remove</span>
+                      </button>
+                      <p className="text-sm font-dancingscript text-amber-300">
+                        ₹{item.price * ci.quantity}
+                      </p>
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
 
             <div className="mt-12 pt-8 border-t border-amber-800/30 animate-fade-in-up">

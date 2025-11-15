@@ -29,7 +29,6 @@ app.use(cors({
 
 // ✅ Import routes
 import userRoute from './routes/userRoute.js';
-import itemRouter from './routes/itemRoute.js';
 import cartRoute from './routes/cartRoute.js';
 import orderRouter from './routes/orderRoute.js';
 
@@ -44,7 +43,6 @@ connectDB();
 // ✅ Routes
 app.use('/api/user', userRoute);
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
-app.use('/api/items', itemRouter);
 app.use('/api/cart', cartRoute);
 app.use('/api/orders', orderRouter);
 

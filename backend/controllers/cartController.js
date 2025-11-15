@@ -26,7 +26,9 @@ export const addToCart = async (req, res) => {
             cart = new Cart({ userId, items: [] });
         }
 
-        const existingItem = cart.items.find(i => i.itemId === itemId);
+        const existingItem = cart.items.find(
+            i => i.itemId.toString() === itemId
+        );
 
         if (existingItem) {
             existingItem.quantity += 1;
@@ -50,10 +52,12 @@ export const removeFromCart = async (req, res) => {
         const { userId, itemId } = req.params;
 
         const cart = await Cart.findOne({ userId });
-
         if (!cart) return res.status(404).json({ message: "Cart not found" });
 
-        cart.items = cart.items.filter(i => i.itemId !== itemId);
+        cart.items = cart.items.filter(
+            i => i.itemId.toString() !== itemId
+        );
+
         cart.total = cart.items.reduce((sum, i) => sum + i.price * i.quantity, 0);
 
         await cart.save();
@@ -63,3 +67,4 @@ export const removeFromCart = async (req, res) => {
         res.status(500).json({ message: err.message });
     }
 };
+

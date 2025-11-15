@@ -93,7 +93,7 @@ const OurMenu = () => {
                           className="w-8 h-8 flex items-center justify-center bg-amber-800/40 rounded-full"
                           onClick={() =>
                             quantity > 1
-                              ? addToCart(item, -1)
+                              ? addToCart(item, -1) // negative delta handled in context
                               : removeFromCart(item.id)
                           }
                         >
