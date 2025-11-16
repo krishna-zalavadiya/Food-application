@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useCart } from "../../CartContext/CartContext.jsx";
 import axios from "axios";
 import Navbar from "../../components/navbar/navbar";
@@ -9,6 +9,17 @@ const CheckoutPage = () => {
   const { cartItems, totalAmount, clearCart } = useCart();
   const navigate = useNavigate();
 
+  const userId = localStorage.getItem("userId");
+  const token = localStorage.getItem("authToken");
+
+  // ✅ SAFE REDIRECT — does not break the page layout
+  useEffect(() => {
+    if (!userId) {
+      alert("Please login before checking out.");
+      navigate("/login");
+    }
+  }, [userId, navigate]);
+
   const [form, setForm] = useState({
     firstName: "",
     lastName: "",
@@ -17,7 +28,7 @@ const CheckoutPage = () => {
     address: "",
     city: "",
     zipCode: "",
-    paymentMethod: "cod", // COD ONLY
+    paymentMethod: "cod",
   });
 
   const handleInput = (e) => {
@@ -33,14 +44,6 @@ const CheckoutPage = () => {
     }
 
     try {
-      const token = localStorage.getItem("authToken");
-      const userId = localStorage.getItem("userId");
-
-      if (!userId) {
-        alert("User not logged in!");
-        return;
-      }
-
       const orderData = {
         userId,
         items: cartItems.map((ci) => ({
@@ -60,14 +63,16 @@ const CheckoutPage = () => {
         address: form.address,
         city: form.city,
         zipCode: form.zipCode,
-        paymentMethod: "cod", // FORCE COD
+        paymentMethod: "cod",
       };
 
       const res = await axios.post(
         "http://localhost:4000/api/orders",
         orderData,
         {
-          headers: { Authorization: `Bearer ${token}` },
+          headers: {
+            Authorization: `Bearer ${token}`, // ✅ important
+          },
         }
       );
 
@@ -95,56 +100,109 @@ const CheckoutPage = () => {
           </h1>
 
           <form className="grid md:grid-cols-2 gap-8" onSubmit={handleSubmit}>
-            
             {/* LEFT FORM */}
             <div className="space-y-4">
-              <input type="text" name="firstName" placeholder="First Name"
-                value={form.firstName} onChange={handleInput} required
-                className="w-full p-3 rounded-lg bg-amber-950/40 border border-amber-600/40 focus:border-amber-400 outline-none" />
+              <input
+                type="text"
+                name="firstName"
+                placeholder="First Name"
+                value={form.firstName}
+                onChange={handleInput}
+                required
+                className="w-full p-3 rounded-lg bg-amber-950/40 border border-amber-600/40 focus:border-amber-400 outline-none"
+              />
 
-              <input type="text" name="lastName" placeholder="Last Name"
-                value={form.lastName} onChange={handleInput} required
-                className="w-full p-3 rounded-lg bg-amber-950/40 border border-amber-600/40 focus:border-amber-400 outline-none" />
+              <input
+                type="text"
+                name="lastName"
+                placeholder="Last Name"
+                value={form.lastName}
+                onChange={handleInput}
+                required
+                className="w-full p-3 rounded-lg bg-amber-950/40 border border-amber-600/40 focus:border-amber-400 outline-none"
+              />
 
-              <input type="email" name="email" placeholder="Email"
-                value={form.email} onChange={handleInput} required
-                className="w-full p-3 rounded-lg bg-amber-950/40 border border-amber-600/40 focus:border-amber-400 outline-none" />
+              <input
+                type="email"
+                name="email"
+                placeholder="Email"
+                value={form.email}
+                onChange={handleInput}
+                required
+                className="w-full p-3 rounded-lg bg-amber-950/40 border border-amber-600/40 focus:border-amber-400 outline-none"
+              />
 
-              <input type="text" name="phone" placeholder="Phone Number"
-                value={form.phone} onChange={handleInput} required
-                className="w-full p-3 rounded-lg bg-amber-950/40 border border-amber-600/40 focus:border-amber-400 outline-none" />
+              <input
+                type="text"
+                name="phone"
+                placeholder="Phone Number"
+                value={form.phone}
+                onChange={handleInput}
+                required
+                className="w-full p-3 rounded-lg bg-amber-950/40 border border-amber-600/40 focus:border-amber-400 outline-none"
+              />
 
-              <input type="text" name="address" placeholder="Address"
-                value={form.address} onChange={handleInput} required
-                className="w-full p-3 rounded-lg bg-amber-950/40 border border-amber-600/40 focus:border-amber-400 outline-none" />
+              <input
+                type="text"
+                name="address"
+                placeholder="Address"
+                value={form.address}
+                onChange={handleInput}
+                required
+                className="w-full p-3 rounded-lg bg-amber-950/40 border border-amber-600/40 focus:border-amber-400 outline-none"
+              />
 
-              <input type="text" name="city" placeholder="City"
-                value={form.city} onChange={handleInput} required
-                className="w-full p-3 rounded-lg bg-amber-950/40 border border-amber-600/40 focus:border-amber-400 outline-none" />
+              <input
+                type="text"
+                name="city"
+                placeholder="City"
+                value={form.city}
+                onChange={handleInput}
+                required
+                className="w-full p-3 rounded-lg bg-amber-950/40 border border-amber-600/40 focus:border-amber-400 outline-none"
+              />
 
-              <input type="text" name="zipCode" placeholder="ZIP Code"
-                value={form.zipCode} onChange={handleInput} required
-                className="w-full p-3 rounded-lg bg-amber-950/40 border border-amber-600/40 focus:border-amber-400 outline-none" />
+              <input
+                type="text"
+                name="zipCode"
+                placeholder="ZIP Code"
+                value={form.zipCode}
+                onChange={handleInput}
+                required
+                className="w-full p-3 rounded-lg bg-amber-950/40 border border-amber-600/40 focus:border-amber-400 outline-none"
+              />
 
-              {/* Payment Method (COD Only) */}
-              <select name="paymentMethod" value="cod" disabled
-                className="w-full p-3 rounded-lg bg-amber-950/40 border border-amber-600/40">
+              <select
+                name="paymentMethod"
+                value="cod"
+                disabled
+                className="w-full p-3 rounded-lg bg-amber-950/40 border border-amber-600/40"
+              >
                 <option value="cod">Cash on Delivery</option>
               </select>
 
-              <button type="submit"
-                className="w-full bg-gradient-to-r from-amber-500 to-amber-700 py-3 rounded-lg text-[#2D1B0E] font-bold hover:scale-105 transition">
+              <button
+                type="submit"
+                className="w-full bg-gradient-to-r from-amber-500 to-amber-700 py-3 rounded-lg text-[#2D1B0E] font-bold hover:scale-105 transition"
+              >
                 Place Order
               </button>
             </div>
 
             {/* RIGHT ORDER SUMMARY */}
             <div className="bg-[#1a120b]/50 p-6 rounded-xl border border-amber-700/30">
-              <h2 className="text-3xl font-cinzel mb-4 text-amber-300">Order Summary</h2>
+              <h2 className="text-3xl font-cinzel mb-4 text-amber-300">
+                Order Summary
+              </h2>
 
               {cartItems.map((ci) => (
-                <div key={ci.item.id} className="flex justify-between py-2 border-b border-amber-800/30 text-amber-200">
-                  <span>{ci.item.name} x {ci.quantity}</span>
+                <div
+                  key={ci.item.id}
+                  className="flex justify-between py-2 border-b border-amber-800/30 text-amber-200"
+                >
+                  <span>
+                    {ci.item.name} x {ci.quantity}
+                  </span>
                   <span>₹{ci.item.price * ci.quantity}</span>
                 </div>
               ))}

@@ -8,9 +8,16 @@ const CartPage = () => {
   const [selectedImage, setSelectedImage] = useState(null);
   const navigate = useNavigate();
 
-  const handleCheckout = () => {
-    navigate("/checkout");
-  };
+ const handleCheckout = () => {
+  const userId = localStorage.getItem("userId");
+
+  if (!userId) {
+    alert("Please login to proceed to checkout.");
+    return;
+  }
+
+  navigate("/checkout");
+};
 
   return (
     <div className="min-h-screen overflow-x-hidden py-16 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-[#1a120b] via-[#2a1e14] to-[#3e2b1d]">

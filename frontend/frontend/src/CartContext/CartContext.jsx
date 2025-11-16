@@ -9,16 +9,14 @@ import React, {
 
 const CartContext = createContext();
 
-const API = "http://localhost:4000"; // BACKEND URL ✔✔✔
+const API = "http://localhost:4000";
 
 const cartReducer = (state, action) => {
   switch (action.type) {
     case "SET_CART":
       return action.payload;
-
     case "CLEAR_CART":
       return [];
-
     default:
       return state;
   }
@@ -42,6 +40,8 @@ export const CartProvider = ({ children }) => {
   };
 
   const userId = getUserId();
+  const token = localStorage.getItem("authToken");
+  const isLoggedIn = !!userId;
 
   const normalizeServerCart = (cart) => {
     if (!cart || !cart.items) return [];
@@ -56,31 +56,49 @@ export const CartProvider = ({ children }) => {
     }));
   };
 
-  const fetchCartFromServer = useCallback(async () => {
-    if (!userId) return;
+const fetchCartFromServer = useCallback(async () => {
+  if (!userId) return;
 
-    setLoading(true);
+  setLoading(true);
 
-    try {
-      const res = await fetch(`${API}/api/cart/${userId}`);
-      const data = await res.json();
-      dispatch({ type: "SET_CART", payload: normalizeServerCart(data) });
-    } catch (err) {
-      console.error("Fetch cart error:", err);
-    }
+  try {
+    const res = await fetch(`${API}/api/cart/${userId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,   // ✅ FIX ADDED HERE
+      },
+    });
 
-    setLoading(false);
-  }, [userId]);
+    const data = await res.json();
+    dispatch({ type: "SET_CART", payload: normalizeServerCart(data) });
+  } catch (err) {
+    console.error("Fetch cart error:", err);
+  }
+
+  setLoading(false);
+}, [userId]);
+
+
 
   useEffect(() => {
     fetchCartFromServer();
   }, [fetchCartFromServer]);
 
+  // -----------------------
+  // ADD TO CART
+  // -----------------------
   const addOneToServerCart = async (item) => {
+    if (!isLoggedIn) {
+      alert("Please login to add items to cart.");
+      return;
+    }
+
     try {
       await fetch(`${API}/api/cart/add`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
         body: JSON.stringify({
           userId,
           itemId: item.id,
@@ -96,6 +114,11 @@ export const CartProvider = ({ children }) => {
 
   const addToCart = useCallback(
     async (item, qty = 1) => {
+      if (!isLoggedIn) {
+        alert("Please login to add items to cart.");
+        return;
+      }
+
       if (qty > 0) {
         for (let i = 0; i < qty; i++) {
           await addOneToServerCart(item);
@@ -110,10 +133,19 @@ export const CartProvider = ({ children }) => {
     [fetchCartFromServer]
   );
 
+  // -----------------------
+  // REMOVE FROM CART
+  // -----------------------
   const removeFromCart = useCallback(
     async (id) => {
+      if (!isLoggedIn) {
+        alert("Please login to remove items.");
+        return;
+      }
+
       await fetch(`${API}/api/cart/${userId}/${id}`, {
         method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
       });
 
       await fetchCartFromServer();
@@ -126,8 +158,16 @@ export const CartProvider = ({ children }) => {
     return found ? found.quantity : 0;
   };
 
+  // -----------------------
+  // UPDATE QUANTITY
+  // -----------------------
   const updateQuantity = useCallback(
     async (item, newQty) => {
+      if (!isLoggedIn) {
+        alert("Please login first.");
+        return;
+      }
+
       const current = getQuantity(item);
 
       if (newQty === current) return;
